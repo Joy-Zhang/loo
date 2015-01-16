@@ -27,10 +27,11 @@ M.route = function(http_method, uri)
         if http_method == rule.pattern.method then
             local m = ngx.re.match(uri, rule.pattern.uri)
             if m then
-                for k in pairs(m) do
-                
+                local args = {}
+                for k in ipairs(m) do
+                    table.insert(args, m[k])
                 end
-                return M.default_controller_directory..'.'..rule.execution.controller, rule.execution.call
+                return M.default_controller_directory..'.'..rule.execution.controller, rule.execution.call, args
             end
         end
     end
@@ -42,7 +43,7 @@ M.route = function(http_method, uri)
             controller = controller..'.'..call
         end
         if call then
-            return string.sub(controller, 1, string.len(controller) - string.len(call) - 1), call
+            return string.sub(controller, 1, string.len(controller) - string.len(call) - 1), call, {}
         end
     end
 end
