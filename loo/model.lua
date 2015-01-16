@@ -1,6 +1,5 @@
-local modname = ...
 local M = {}
-_G[modname] = M
+package.loaded[...] = M
 
 local mysql = require('resty.mysql')
 
@@ -36,11 +35,11 @@ M.get = function(model_name)
         information[model_name] = model
     end
     
-    model.create = function(self, row) 
+    model.create = function(self, record) 
         local columns = ''
         local values = ''
         local i = 0
-        for name, value in pairs(row) do
+        for name, value in pairs(record) do
             if i == 0 then
                 columns = columns..'('
                 values = values..'('
@@ -59,25 +58,11 @@ M.get = function(model_name)
         end
         
         local sql = 'INERT INTO '..self.table..columns..') VALUES '..values..')'
-        return sql
+        return M.query(sql)
     end
-
 
     return information[model_name]
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 M.query = function(query)
     if M.db == nil then

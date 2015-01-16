@@ -1,6 +1,5 @@
-local modname = ...
 local M = {}
-_G[modname] = M
+package.loaded[...] = M
 
 local routing_table = {}
 

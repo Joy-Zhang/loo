@@ -1,6 +1,5 @@
-local modname = ...
 local M = {}
-_G[modname] = M
+package.loaded[...] = M
 
 M.router = require('loo.router')
 M.model = require('loo.model')
