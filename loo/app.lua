@@ -25,12 +25,16 @@ local _run = function()
     return true
 end
 
+M.error = function(status, message)
+    ngx.header['Content-Type'] = 'text/plain'
+    ngx.status = status
+    ngx.print(message)
+end
+
 M.run = function()
     local ok, err = _run()
     if not ok then
-        ngx.header['Content-Type'] = 'text/plain'
-        ngx.status = ngx.HTTP_NOT_FOUND
-        ngx.print(err)
+        M.error(ngx.HTTP_NOT_FOUND, err)
     end
 end
 

@@ -13,28 +13,16 @@ M.password = ''
 local db = nil
 local information = {}
 
+local __M = {}
 
-
-M.get = function(model_name)
+__M.__call = function(M, model_name)
     if M.db == nil then
         return nil, 'db not set'
     end
     local model = {
         table = model_name
-    } 
+    }
 
-    if information[model_name] == nil then
-        local columns, err = M.query('SELECT * FROM INFORMATION_SCHEMA.COLUMNS\
-            WHERE TABLE_SCHEMA = \''..M.database..'\' AND TABLE_NAME = \''..model_name..'\'')
-        for i, column in ipairs(columns) do
-            if column['COLUMN_KEY'] == 'PRI' then
-                model.key = column['COLUMN_NAME']
-            end
-        end
-        model.columns = columns
-        information[model_name] = model
-    end
-    
     model.create = function(self, record) 
         local columns = ''
         local values = ''
@@ -50,19 +38,46 @@ M.get = function(model_name)
             i = i + 1            
             if type(value) == 'string' then
                 columns = columns..name
-                values = values..string.format('\'%s\'', value)
+                values = values..ngx.quote_sql_str(value)
             elseif type(value) == 'number' then
                 columns = columns..name
                 values = values..string.format('%d', value)
             end
         end
         
-        local sql = 'INERT INTO '..self.table..columns..') VALUES '..values..')'
+        local sql = 'INSERT INTO '..self.table..columns..') VALUES '..values..')'
         return M.query(sql)
     end
 
-    return information[model_name]
+    model.delete = function(self, condition)
+        local sql = 'DELETE FROM '..self.table..' WHERE '..condition;
+        return M.query(sql)
+    end
+
+    model.update = function(self, record, condition)
+        local i = 0
+        local update = ''
+        for name, value in pairs(record) do
+            if i == 0 then
+                update = update..' '
+            else
+                update = update..','
+            end
+            i = i + 1
+            if type(value) == 'string' then
+                update = update..name..'='..ngx.quote_sql_str(value)
+            else
+                update = update..name..'='..string.format('%d', value)
+            end
+        end
+        local sql = 'UPDATE '..self.table..' SET'..update..' WHERE '..condition
+        return M.query(sql)
+    end
+
+    return model
 end
+
+setmetatable(M, __M)
 
 M.query = function(query)
     if M.db == nil then
