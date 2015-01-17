@@ -4,10 +4,10 @@ package.loaded[...] = M
 M.router = require('loo.router')
 M.model = require('loo.model')
 
-local _run = function() 
-    local controller_module, call, args = M.router.route(ngx.req.get_method(), ngx.var.uri)
+M.execute = function(uri) 
+    local controller_module, call, args = M.router.route(ngx.req.get_method(), uri)
     if call == nil then
-        return false, 'routing uri "'..ngx.var.uri..'" failed'
+        return false, 'routing uri "'..uri..'" failed'
     end 
     local ok, controller = pcall(require, controller_module)
     if not ok then
@@ -32,7 +32,7 @@ M.error = function(status, message)
 end
 
 M.run = function()
-    local ok, err = _run()
+    local ok, err = M.exec(ngx.var.uri)
     if not ok then
         M.error(ngx.HTTP_NOT_FOUND, err)
     end
