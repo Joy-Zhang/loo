@@ -3,7 +3,7 @@ package.loaded[...] = M
 
 local mysql = require('resty.mysql')
 
-M.db = 'mysql'
+M.db = nil
 M.host = '127.0.0.1'
 M.port = '3306'
 M.database = ''
