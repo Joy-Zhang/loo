@@ -18,7 +18,7 @@ M.add = function(http_method, uri_pattern, controller, call)
 end
 
 M.simple = true
-M.default_controller_directory = 'controller'
+M.controller_prefix = 'controller.'
 
 M.route = function(http_method, uri)
     for i, rule in ipairs(routing_table) do
@@ -30,19 +30,19 @@ M.route = function(http_method, uri)
                 for k in ipairs(m) do
                     table.insert(args, m[k])
                 end
-                return M.default_controller_directory..'.'..rule.execution.controller, rule.execution.call, args
+                return M.controller_prefix..rule.execution.controller, rule.execution.call, args
             end
         end
     end
     if M.simple then
-        local controller = M.default_controller_directory
+        local controller = ''
         local call = nil
         for part in string.gmatch(uri, '/(%w+)') do
             call = part
             controller = controller..'.'..call
         end
         if call then
-            return string.sub(controller, 1, string.len(controller) - string.len(call) - 1), call, {}
+            return M.controller_prefix..string.sub(controller, 2, string.len(controller) - string.len(call) - 1), call, {}
         end
     end
 end
