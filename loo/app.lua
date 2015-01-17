@@ -32,7 +32,7 @@ M.error = function(status, message)
 end
 
 M.run = function()
-    local ok, err = M.exec(ngx.var.uri)
+    local ok, err = M.execute(ngx.var.uri)
     if not ok then
         M.error(ngx.HTTP_NOT_FOUND, err)
     end
