@@ -13,9 +13,13 @@ __M.__call = function(M, view_name)
     local view = {};
     view.template = template;
     view.render = function(self, args)
-        ngx.print(self.template)
+        local output = ngx.re.gsub(template, '\\{#(.+?)\\}', function(m)
+                return args[m[1]]
+            end
+        )
+        ngx.print(output)
     end
-    return view 
+    return view
 end
 
 setmetatable(M, __M)
