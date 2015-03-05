@@ -113,6 +113,5 @@ M._finalize = function()
     db:close()
 end
 
-
 return M
 

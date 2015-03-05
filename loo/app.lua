@@ -16,9 +16,7 @@ M.execute = function(uri)
     if type(controller[call]) ~= 'function' then
         return false, 'controller function "'..call..'" not found'
     end
-    M.model._ctor()
     ok, err = pcall(controller[call], unpack(args))
-    M.model._finalize()
     if not ok then
         return false, err
     end
@@ -32,7 +30,9 @@ M.error = function(status, message)
 end
 
 M.run = function()
+    M.model._ctor()
     local ok, err = M.execute(ngx.var.uri)
+    M.model._finalize()
     if not ok then
         M.error(ngx.HTTP_NOT_FOUND, err)
     end
